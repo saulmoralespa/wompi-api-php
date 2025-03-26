@@ -33,7 +33,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-php-
 
-      - name: Install dependencies, run test suite
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+      - name: Create .env File
         run: |
-          composer install --prefer-dist --no-progress
-          composer run-script test
+          echo "KEY_PRIVATE=${{ vars.KEY_PRIVATE }}" >> .env
+          echo "KEY_PUBLIC=${{ vars.KEY_PUBLIC }}" >> .env
+          echo "KEY_INTEGRETY=${{ vars.KEY_INTEGRETY }}" >> .env
+      - name: Run PHPUnit Tests
+        run: composer run-script test
