@@ -36,6 +36,7 @@
         "phpcs-check": "phpcs --colors -s",
         "phpcs-fix": "phpcbf --colors -s",
         "phpcs-auto-check-summary": "phpcs --report=summary -p",
-        "phpcs-auto-fix-summary": "phpcbf --report=summary -p"
+        "phpcs-auto-fix-summary": "phpcbf --report=summary -p",
+        "test": "phpunit"
     }
 }

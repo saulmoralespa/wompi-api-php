@@ -10,7 +10,7 @@ You will need at least PHP 8.1. We match [officially supported](https://www.php.
 Use [composer](https://getcomposer.org/) package manager to install the lastest version of the package:
 
 ```shell
-composer require saulmoralespa/wompi-api-php
+composer require saulmoralespa/wompi-api-php dev-main
 ```
 
 ```php
