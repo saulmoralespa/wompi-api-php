@@ -196,3 +196,30 @@ $response = $this->wompi->transaction($data);
 
 }
 ```
+
+### Create Payment Link
+```php
+try {
+$data = [
+    "name" => "Pago de arriendo edificio Lombardía - AP 505",
+    "description" => "Arriendo mensual", // Descripción del pago
+    "single_use" => false, // `false` current caso de que el link de pago pueda recibir múltiples transacciones APROBADAS o `true` si debe dejar de aceptar transacciones después del primer pago APROBADO
+    "collect_shipping" => false, // Si deseas que el cliente inserte su información de envío current el checkout, o no
+    "currency" => "COP",
+    "amount_in_cents" => 500000
+];
+$response = $this->wompi->createPaymentLink($data);
+} catch (\Exception $exception) {
+
+}
+```
+
+### Get Payment Link
+```php
+try {
+$id = "ID_PAYMENT_LINK";
+$response = $this->wompi->getPaymentLink($id);
+} catch (\Exception $exception) {
+
+}
+```

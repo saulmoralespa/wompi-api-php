@@ -228,4 +228,29 @@ final class WompiTest extends TestCase
             "accept_personal_auth" => $data[ "presigned_personal_data_auth" ][ "acceptance_token" ]
         ];
     }
+
+    public function testCreatePaymentLink()
+    {
+        $data = [
+            "name" => "Pago de arriendo edificio Lombardía - AP 505",
+            "description" => "Arriendo mensual", // Descripción del pago
+            "single_use" => false, // `false` current caso de que el link de pago pueda recibir múltiples transacciones APROBADAS o `true` si debe dejar de aceptar transacciones después del primer pago APROBADO
+            "collect_shipping" => false, // Si deseas que el cliente inserte su información de envío current el checkout, o no
+            "currency" => "COP",
+            "amount_in_cents" => 500000
+        ];
+        $response = $this->wompi->createPaymentLink($data);
+        $this->assertArrayHasKey('id', $response[ 'data' ]);
+        $this->assertArrayHasKey('name', $response[ 'data' ]);
+
+        return $response[ 'data' ][ 'id' ];
+    }
+
+    #[Depends('testCreatePaymentLink')]
+    public function testGetPaymentLink(string $id)
+    {
+        $response = $this->wompi->getPaymentLink($id);
+        $this->assertArrayHasKey('name', $response[ 'data' ]);
+        $this->assertArrayHasKey('currency', $response[ 'data' ]);
+    }
 }

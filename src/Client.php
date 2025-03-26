@@ -152,6 +152,27 @@ class Client
 
     /**
      * @throws GuzzleException
+     */
+    public function createPaymentLink(array $data): array
+    {
+        return $this->makeRequest("POST", "payment_links", [
+            "headers" => [
+                "Authorization" => "Bearer " . $this->keyPrivate,
+            ],
+            "json" => $data
+        ]);
+    }
+
+    /**
+     * @throws GuzzleException
+     */
+    public function getPaymentLink(string $id): array
+    {
+        return $this->makeRequest("GET", "payment_links/$id");
+    }
+
+    /**
+     * @throws GuzzleException
      * @throws \Exception
      */
     private function makeRequest(string $method, string $uri, array $newOptions = []): array
