@@ -215,6 +215,17 @@ final class WompiTest extends TestCase
         $response = $this->wompi->transaction($data);
         $this->assertArrayHasKey('id', $response[ 'data' ]);
         $this->assertArrayHasKey('status', $response[ 'data' ]);
+
+        return $response[ 'data' ][ 'id' ];
+    }
+
+    #[Depends('testTransactionNequi')]
+    public function testGetTransaction(string $transactionId)
+    {
+        $response = $this->wompi->getTransaction($transactionId);
+        $this->assertArrayHasKey('status', $response[ 'data' ]);
+        $this->assertArrayHasKey('payment_method', $response[ 'data' ]);
+        $this->assertIsArray($response[ 'data' ]['payment_method']);
     }
 
     private function getDataSource(string $type, string $token, $data): array

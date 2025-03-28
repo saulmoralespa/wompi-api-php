@@ -153,6 +153,14 @@ class Client
     /**
      * @throws GuzzleException
      */
+    public function getTransaction(string $transactionId): array
+    {
+        return $this->makeRequest("GET", "transactions/$transactionId");
+    }
+
+    /**
+     * @throws GuzzleException
+     */
     public function createPaymentLink(array $data): array
     {
         return $this->makeRequest("POST", "payment_links", [
