@@ -25,6 +25,12 @@ final class WompiTest extends TestCase
         $this->wompi->sandbox();
     }
 
+    public function testGetKeysTokenization()
+    {
+        $response = $this->wompi->getKeysTokenization();
+        $this->assertIsString($response);
+    }
+
     public function testCardToken(): string
     {
         $data = [

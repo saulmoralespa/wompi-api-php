@@ -6,6 +6,13 @@ use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Utils;
+use Jose\Component\Core\AlgorithmManager;
+use Jose\Component\Encryption\Algorithm\ContentEncryption\A256GCM;
+use Jose\Component\Encryption\Algorithm\KeyEncryption\RSAOAEP256;
+use Jose\Component\Encryption\Compression\CompressionMethodManager;
+use Jose\Component\Encryption\JWEBuilder;
+use Jose\Component\Encryption\Serializer\CompactSerializer;
+use Jose\Component\KeyManagement\JWKFactory;
 
 class Client
 {
@@ -39,12 +46,34 @@ class Client
     }
 
     /**
+     * @throws GuzzleException|RuntimeException
+     */
+    public function getKeysTokenization(): string
+    {
+        $decoded = $this->makeRequest("GET", "tokens/keys/tokenization");
+        $pem = $decoded['data']['publicKey'] ?? null;
+
+        if (!$pem) {
+            throw new RuntimeException('Public key missing in response');
+
+        }
+
+        $pem = self::normalizePem($pem);
+        return $pem;
+    }
+
+    /**
      * @throws \Exception|GuzzleException
      */
     public function cardToken(array $data): array
     {
+        $publicKey = $this->getKeysTokenization();
+        $encrypted = self::encrypt($data, $publicKey);
+
         return $this->makeRequest("POST", "tokens/cards", [
-            "json" => $data
+            "json" => [
+                "payload" => $encrypted
+            ]
         ]);
     }
 
@@ -213,6 +242,41 @@ class Client
     public static function responseArray(string $content): array
     {
         return Utils::jsonDecode($content, true);
+    }
+
+    public static function normalizePem(string $raw): string
+    {
+        $cleaned = str_replace(["\r", '\\n'], ['', "\n"], trim($raw));
+        $base64 = preg_replace(
+            '/\s+/',
+            '',
+            str_replace(['-----BEGIN PUBLIC KEY-----', '-----END PUBLIC KEY-----'], '', $cleaned)
+        );
+
+        return "-----BEGIN PUBLIC KEY-----\n" . $base64 . "\n-----END PUBLIC KEY-----";
+    }
+
+    public static function encrypt(array $payload, string $pemKey): string
+    {
+        $keyEncryption = new AlgorithmManager([new RSAOAEP256()]);
+        $contentEncryption = new AlgorithmManager([new A256GCM()]);
+        $compressionManager = new CompressionMethodManager([]); // no compression
+
+        $jwk = JWKFactory::createFromKey($pemKey, null, ['use' => 'enc']);
+
+        $jweBuilder = new JWEBuilder($keyEncryption, $contentEncryption, $compressionManager);
+        $jwe = $jweBuilder
+            ->create()
+            ->withPayload(json_encode($payload, JSON_THROW_ON_ERROR))
+            ->withSharedProtectedHeader([
+                'alg' => 'RSA-OAEP-256',
+                'enc' => 'A256GCM',
+            ])
+            ->addRecipient($jwk)
+            ->build();
+
+        $serializer = new CompactSerializer();
+        return $serializer->serialize($jwe, 0);
     }
 
     public function handleErrors(array $response): ?string
