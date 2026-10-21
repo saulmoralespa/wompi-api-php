@@ -48,6 +48,23 @@ final class WompiTest extends TestCase
         return $response[ 'data' ]['id'];
     }
 
+    public function testCardTokenEncrypted(): string
+    {
+        $data = [
+            "number" => "4242424242424242",
+            "exp_month" => "06",
+            "exp_year" => "29",
+            "cvc" => "123",
+            "card_holder" => "Pedro Pérez"
+        ];
+        $response = $this->wompi->cardToken($data, true);
+        $this->assertArrayHasKey('id', $response[ 'data' ]);
+        $this->assertArrayHasKey('status', $response);
+        $this->assertArrayHasKey('data', $response);
+
+        return $response[ 'data' ]['id'];
+    }
+
     public function testNequiToken()
     {
         $data = [

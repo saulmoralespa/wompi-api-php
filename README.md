@@ -51,6 +51,25 @@ $token = $response[ 'data' ]['id'];
 }
 ```
 
+### Create card token encrypted
+
+```php
+$data = [
+    "number" => "4242424242424242",
+    "exp_month" => "06",
+    "exp_year" => "29",
+    "cvc" => "123",
+    "card_holder" => "Pedro Pérez"
+];
+
+try {
+$response = $wompi->cardToken($data, true);
+$token = $response[ 'data' ]['id'];
+} catch(\Exception $exception) {
+
+}
+```
+
 ### Create Nequi token
 
 ```php

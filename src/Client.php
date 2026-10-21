@@ -65,15 +65,18 @@ class Client
     /**
      * @throws \Exception|GuzzleException
      */
-    public function cardToken(array $data): array
+    public function cardToken(array $data, $isEncrypted = false): array
     {
-        $publicKey = $this->getKeysTokenization();
-        $encrypted = self::encrypt($data, $publicKey);
-
-        return $this->makeRequest("POST", "tokens/cards", [
-            "json" => [
+        if ($isEncrypted) {
+            $publicKey = $this->getKeysTokenization();
+            $encrypted = self::encrypt($data, $publicKey);
+            $data = [
                 "payload" => $encrypted
-            ]
+            ];
+        }
+        
+        return $this->makeRequest("POST", "tokens/cards", [
+            "json" => $data
         ]);
     }
 
